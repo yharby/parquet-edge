@@ -1,0 +1,15 @@
+[project]
+name = "parquet-edge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "awscli",
+    "enviroplus",
+    "fastparquet",
+    "pandas",
+    "pms5003",
+    "rpi-bme280",
+    "smbus2",
+]
