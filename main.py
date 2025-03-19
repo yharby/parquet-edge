@@ -30,6 +30,7 @@ SENSOR_CONFIG = {
 
 READ_INTERVAL = 1        # seconds between sensor reads
 BATCH_DURATION = 60      # seconds for each batch (will be adjusted to align with minute boundaries)
+STATION_ID = "01"        # station identifier for data partitioning
 
 # --- Sensor Initialization ---
 if SENSOR_CONFIG.get('bme280'):
@@ -125,11 +126,23 @@ def main():
                 if 'datetime' in df.columns:
                     df['datetime'] = pd.to_datetime(df['datetime'])
                 
-                # Generate a filename with the aligned timestamp
-                filename = f"sensor_data_{timestamp}.parquet"
+                # Extract date components for partitioning
+                year = rounded_dt.strftime('%Y')
+                month = rounded_dt.strftime('%m')
+                day = rounded_dt.strftime('%d')
+                hour = rounded_dt.strftime('%H')
+                minute = rounded_dt.strftime('%M')
                 
-                # Create output directory if it doesn't exist
-                output_dir = Path(f"output/{filename.split('.')[0]}")
+                # Generate a filename based on the timestamp
+                if BATCH_DURATION <= 60:  # If batch duration is hourly or less
+                    filename = f"data_{hour}{minute}.parquet"
+                elif BATCH_DURATION <= 3600:  # If batch duration is daily or less
+                    filename = f"data_{hour}.parquet"
+                else:
+                    filename = f"data.parquet"
+                
+                # Create partitioned output directory
+                output_dir = Path(f"output/station={STATION_ID}/year={year}/month={month}/day={day}")
                 output_dir.mkdir(parents=True, exist_ok=True)
                 
                 # Full path for the output file
