@@ -32,6 +32,10 @@ READ_INTERVAL = 1        # seconds between sensor reads
 BATCH_DURATION = 60      # seconds for each batch (will be adjusted to align with minute boundaries)
 STATION_ID = "01"        # station identifier for data partitioning
 
+# Station location (Al Rehab City, New Cairo, Egypt)
+STATION_LATITUDE = 30.0626   # degrees North
+STATION_LONGITUDE = 31.4916  # degrees East
+
 # --- Sensor Initialization ---
 if SENSOR_CONFIG.get('bme280'):
     from smbus2 import SMBus
@@ -53,8 +57,12 @@ def read_sensors():
     
     # Use UTC ISO format for the timestamp string
     data['timestamp'] = current_time.isoformat()
-    # Add a proper datetime column
-    data['datetime'] = current_time
+    # Add static location data
+    data['latitude'] = STATION_LATITUDE
+    data['longitude'] = STATION_LONGITUDE
+    
+    # Add a proper datetime column (commented out)
+    # data['datetime'] = current_time
     
     if SENSOR_CONFIG.get('bme280'):
         data['temperature'] = bme280.get_temperature()
@@ -122,22 +130,20 @@ def main():
                 # Convert the list of dicts to a Pandas DataFrame
                 df = pd.DataFrame(batch_data)
                 
-                # Ensure the datetime column is properly typed
-                if 'datetime' in df.columns:
-                    df['datetime'] = pd.to_datetime(df['datetime'])
+                # Ensure the datetime column is properly typed (commented out)
+                # if 'datetime' in df.columns:
+                #     df['datetime'] = pd.to_datetime(df['datetime'])
                 
                 # Extract date components for partitioning
                 year = rounded_dt.strftime('%Y')
                 month = rounded_dt.strftime('%m')
                 day = rounded_dt.strftime('%d')
-                hour = rounded_dt.strftime('%H')
-                minute = rounded_dt.strftime('%M')
                 
                 # Generate a filename based on the timestamp
                 if BATCH_DURATION <= 60:  # If batch duration is hourly or less
-                    filename = f"data_{hour}{minute}.parquet"
+                    filename = f"data_{rounded_dt.strftime('%H%M')}.parquet"
                 elif BATCH_DURATION <= 3600:  # If batch duration is daily or less
-                    filename = f"data_{hour}.parquet"
+                    filename = f"data_{rounded_dt.strftime('%H')}.parquet"
                 else:
                     filename = f"data.parquet"
                 
