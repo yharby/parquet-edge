@@ -59,8 +59,8 @@ def read_sensors():
     # Current UTC time
     current_time = datetime.datetime.now(datetime.timezone.utc)
     
-    # Use UTC ISO format for the timestamp string
-    data['timestamp'] = current_time.isoformat()
+    # Store timestamp as a native datetime object instead of a string
+    data['timestamp'] = current_time
     # Add static location data
     data['latitude'] = STATION_LATITUDE
     data['longitude'] = STATION_LONGITUDE
@@ -134,9 +134,12 @@ def main():
                 # Convert the list of dicts to a Pandas DataFrame
                 df = pd.DataFrame(batch_data)
                 
-                # Ensure the datetime column is properly typed (commented out)
-                # if 'datetime' in df.columns:
-                #     df['datetime'] = pd.to_datetime(df['datetime'])
+                # Ensure the timestamp column is properly typed as datetime and reduce precision to seconds
+                if 'timestamp' in df.columns:
+                    # First convert to datetime
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    # Then reduce precision to seconds (removes microseconds/nanoseconds)
+                    df['timestamp'] = df['timestamp'].dt.floor('s')
                 
                 # Extract date components for partitioning
                 year = rounded_dt.strftime('%Y')
@@ -159,7 +162,8 @@ def main():
                 output_path = output_dir / filename
                 
                 # Write the DataFrame to a Parquet file using fastparquet
-                df.to_parquet(output_path, engine='fastparquet', compression='snappy', index=False)
+                df.to_parquet(output_path, engine='fastparquet', compression='snappy', index=False, 
+                             write_statistics=True)
                 print(f"Wrote {len(batch_data)} records to {output_path}")
                 
                 # Reset the batch data for the next cycle
