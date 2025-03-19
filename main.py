@@ -14,10 +14,14 @@ try:
 except ImportError:
     ltr559_sensor = None
 
+# Handle PMS5003 sensor - gracefully handle if it's broken
 try:
     from pms5003 import PMS5003, ReadTimeoutError
     pms5003 = PMS5003()
-except Exception:
+    print("PMS5003 sensor initialized successfully")
+except Exception as e:
+    print(f"Warning: PMS5003 sensor initialization failed: {e}")
+    print("Continuing without particulate matter sensor")
     pms5003 = None
 
 # --- Configuration ---

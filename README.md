@@ -45,6 +45,7 @@ Collect sensor data from Enviro+ HAT and store it in Parquet format.
 - Collects data from temperature, pressure, humidity, gas, light, and particulate sensors
 - Saves data in efficient Parquet format with minute-aligned timestamps
 - Creates organized directory structure for output files
+- Gracefully handles sensor failures and continues operation with available sensors
 
 ## S3 Synchronization
 
