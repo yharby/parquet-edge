@@ -72,7 +72,7 @@ To automatically sync your Parquet files to an S3 bucket, you can set up a cron 
    ```
 
 The provided crontab configuration will:
-- Sync your output directory to S3 every minute
+- Sync your output directory to S3 every 5 minutes
 - Log all operations to a log file
 - Automatically rotate logs when they exceed 10MB
 

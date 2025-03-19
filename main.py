@@ -29,7 +29,7 @@ SENSOR_CONFIG = {
 }
 
 READ_INTERVAL = 1        # seconds between sensor reads
-BATCH_DURATION = 60      # seconds for each batch (will be adjusted to align with minute boundaries)
+BATCH_DURATION = 300      # seconds for each batch (will be adjusted to align with minute boundaries)
 STATION_ID = "01"        # station identifier for data partitioning
 
 # Station location (Al Rehab City, New Cairo, Egypt)
