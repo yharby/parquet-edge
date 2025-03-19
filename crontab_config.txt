@@ -2,6 +2,13 @@
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.virtualenvs/pimoroni/bin
 PYTHONPATH=/root/parqtime/parquet-edge
+# AWS configuration for S3 endpoint
+AWS_CONFIG_FILE=/root/.aws/config
+AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
+# Uncomment and set these if you need to override the profile or region
+# AWS_PROFILE=default
+# AWS_REGION=us-west-2
+AWS_ENDPOINT_URL=https://data.source.coop
 
 # Sync output directory to S3 every minute
 * * * * * /root/parqtime/parquet-edge/sync_to_s3.sh >> /root/parqtime/parquet-edge/cron_output.log 2>&1
