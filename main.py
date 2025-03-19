@@ -40,6 +40,11 @@ STATION_ID = "01"        # station identifier for data partitioning
 STATION_LATITUDE = 30.0626   # degrees North
 STATION_LONGITUDE = 31.4916  # degrees East
 
+# Temperature compensation settings
+TEMP_COMPENSATION_ENABLED = True  # Set to False to use raw temperature readings
+TEMP_COMPENSATION_FACTOR = 2.25   # Tuning factor - adjust as needed
+cpu_temps = []  # List to store CPU temperature history for smoothing
+
 # --- Sensor Initialization ---
 if SENSOR_CONFIG.get('bme280'):
     from smbus2 import SMBus
@@ -49,6 +54,48 @@ if SENSOR_CONFIG.get('bme280'):
 if SENSOR_CONFIG.get('gas'):
     gas.enable_adc()       # Enable ADC for gas sensor
     gas.set_adc_gain(4.096)  # Set ADC gain as appropriate
+
+# --- Helper Functions ---
+def get_cpu_temperature():
+    """
+    Get the CPU temperature for compensating BME280 temperature readings.
+    """
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+            temp = f.read()
+            temp = int(temp) / 1000.0
+        return temp
+    except (IOError, ValueError):
+        # Return a safe default if we can't read the CPU temperature
+        return 40.0
+
+def compensate_temperature(raw_temp):
+    """
+    Compensate temperature reading from BME280 using CPU temperature.
+    Method adapted from Initial State's Enviro pHAT review.
+    """
+    global cpu_temps
+    
+    if not TEMP_COMPENSATION_ENABLED:
+        return raw_temp
+        
+    # Get current CPU temperature
+    cpu_temp = get_cpu_temperature()
+    
+    # Initialize the list if it's empty
+    if len(cpu_temps) == 0:
+        cpu_temps = [cpu_temp] * 5
+    else:
+        # Smooth out with some averaging to decrease jitter
+        cpu_temps = cpu_temps[1:] + [cpu_temp]
+    
+    # Calculate the average CPU temperature
+    avg_cpu_temp = sum(cpu_temps) / float(len(cpu_temps))
+    
+    # Apply compensation formula
+    comp_temp = raw_temp - ((avg_cpu_temp - raw_temp) / TEMP_COMPENSATION_FACTOR)
+    
+    return comp_temp
 
 # --- Sensor Reading Function ---
 def read_sensors():
@@ -69,7 +116,9 @@ def read_sensors():
     # data['datetime'] = current_time
     
     if SENSOR_CONFIG.get('bme280'):
-        data['temperature'] = bme280.get_temperature()
+        raw_temp = bme280.get_temperature()
+        data['temperature'] = compensate_temperature(raw_temp)
+        data['raw_temperature'] = raw_temp  # Store the raw value as well
         data['pressure'] = bme280.get_pressure()
         data['humidity'] = bme280.get_humidity()
     
