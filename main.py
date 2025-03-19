@@ -174,10 +174,10 @@ def main():
             
             # Check if it's time to write out the batch
             if current_time >= next_batch_end:
-                # Get the current time for the filename
-                current_dt = datetime.datetime.now(datetime.timezone.utc)
-                # Round down to the nearest minute for the timestamp
-                rounded_dt = current_dt.replace(second=0, microsecond=0)
+                # Get the batch end time for the filename (this is when the data collection period ended)
+                batch_end_dt = datetime.datetime.fromtimestamp(next_batch_end, datetime.timezone.utc)
+                # Round to the nearest minute for the timestamp
+                rounded_dt = batch_end_dt.replace(second=0, microsecond=0)
                 timestamp = rounded_dt.strftime('%Y%m%dT%H%M%SZ')
                 
                 # Convert the list of dicts to a Pandas DataFrame
@@ -195,7 +195,7 @@ def main():
                 month = rounded_dt.strftime('%m')
                 day = rounded_dt.strftime('%d')
                 
-                # Generate a filename based on the timestamp
+                # Generate a filename based on the batch end time
                 if BATCH_DURATION <= 300:  # If batch duration is 5 minutes or less
                     filename = f"data_{rounded_dt.strftime('%H%M')}.parquet"
                 elif BATCH_DURATION <= 3600:  # If batch duration is hourly or less
