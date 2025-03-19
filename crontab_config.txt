@@ -4,6 +4,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.virtual
 PYTHONPATH=/root/parqtime/parquet-edge
 AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED
 
+# Run the main data collection script
+@reboot cd /root/parqtime/parquet-edge && source /root/.virtualenvs/pimoroni/bin/activate && python main.py >> /root/parqtime/parquet-edge/main_output.log 2>&1
+
 # Sync output directory to S3 every 5 minutes
 */5 * * * * /root/parqtime/parquet-edge/sync_to_s3.sh >> /root/parqtime/parquet-edge/cron_output.log 2>&1
 

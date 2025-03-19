@@ -72,8 +72,9 @@ To automatically sync your Parquet files to an S3 bucket, you can set up a cron 
    ```
 
 The provided crontab configuration will:
+- Automatically start the data collection script (main.py) on system boot
 - Sync your output directory to S3 every 5 minutes
-- Log all operations to a log file
+- Log all operations to log files
 - Automatically rotate logs when they exceed 10MB
 
 You may need to adjust paths in both `crontab_config.txt` and `sync_to_s3.sh` to match your specific installation directory.
