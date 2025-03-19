@@ -162,8 +162,7 @@ def main():
                 output_path = output_dir / filename
                 
                 # Write the DataFrame to a Parquet file using fastparquet
-                df.to_parquet(output_path, engine='fastparquet', compression='snappy', index=False, 
-                             write_statistics=True)
+                df.to_parquet(output_path, engine='fastparquet', compression='snappy', index=False)
                 print(f"Wrote {len(batch_data)} records to {output_path}")
                 
                 # Reset the batch data for the next cycle
