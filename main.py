@@ -144,9 +144,9 @@ def main():
                 day = rounded_dt.strftime('%d')
                 
                 # Generate a filename based on the timestamp
-                if BATCH_DURATION <= 60:  # If batch duration is hourly or less
+                if BATCH_DURATION <= 300:  # If batch duration is 5 minutes or less
                     filename = f"data_{rounded_dt.strftime('%H%M')}.parquet"
-                elif BATCH_DURATION <= 3600:  # If batch duration is daily or less
+                elif BATCH_DURATION <= 3600:  # If batch duration is hourly or less
                     filename = f"data_{rounded_dt.strftime('%H')}.parquet"
                 else:
                     filename = f"data.parquet"
