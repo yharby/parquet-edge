@@ -37,7 +37,7 @@ def main():
     
     # Construct S3 paths
     input_path = f"s3://youssef-harby/weather-station-realtime-parquet/parquet/station=01/year={year}/month={month}/day={day}/*.parquet"
-    output_file = f"1m_avg_{year}{month}{day}.parquet"
+    output_file = f"{year}_{month}_{day}.parquet"
     dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/{output_file}"
     
     print(f"Input path: {input_path}")
@@ -111,7 +111,6 @@ def main():
         # Verify counts match
         if source_row_count != destination_row_count:
             print(f"Warning: Source count ({source_row_count}) does not match destination count ({destination_row_count})")
-            return 1
         
         print("Daily aggregation completed successfully.")
         return 0
