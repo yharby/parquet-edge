@@ -37,8 +37,8 @@ def main():
     
     # Construct S3 paths
     input_path = f"s3://youssef-harby/weather-station-realtime-parquet/parquet/station=01/year={year}/month={month}/day={day}/*.parquet"
-    output_file = f"aggregated_{year}{month}{day}.parquet"
-    dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/archive_daily/station=01/year={year}/month={month}/day={day}/{output_file}"
+    output_file = f"1m_avg_{year}{month}{day}.parquet"
+    dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/{output_file}"
     
     print(f"Input path: {input_path}")
     print(f"Output path: {dest_path}")
@@ -82,7 +82,23 @@ def main():
         print("Performing aggregation and upload...")
         conn.execute(f"""
         COPY (
-          SELECT * FROM read_parquet('{input_path}')
+          SELECT
+            date_trunc('minute', timestamp) AS timestamp,
+            AVG(temperature) AS temperature,
+            AVG(raw_temperature) AS raw_temperature,
+            AVG(pressure) AS pressure,
+            AVG(humidity) AS humidity,
+            AVG(oxidised) AS oxidised,
+            AVG(reducing) AS reducing,
+            AVG(nh3) AS nh3,
+            AVG(lux) AS lux,
+            AVG(proximity) AS proximity
+          FROM 
+            read_parquet('{input_path}', hive_partitioning=1, union_by_name=true)
+          GROUP BY 
+            date_trunc('minute', timestamp)
+          ORDER BY 
+            timestamp
         ) TO '{dest_path}' (FORMAT 'parquet', COMPRESSION 'zstd', ROW_GROUP_SIZE 65536, OVERWRITE 1);
         """)
         
