@@ -38,7 +38,7 @@ def main():
     # Construct S3 paths
     input_path = f"s3://youssef-harby/weather-station-realtime-parquet/parquet/station=01/year={year}/month={month}/day={day}/*.parquet"
     output_file = f"{year}_{month}_{day}.parquet"
-    dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/{output_file}"
+    dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/year={year}/month={month}/{output_file}"
     
     print(f"Input path: {input_path}")
     print(f"Output path: {dest_path}")
