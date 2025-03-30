@@ -151,16 +151,19 @@ def main():
     print("Starting sensor data collection using fastparquet. Press Ctrl+C to stop.")
     batch_data = []       # List to accumulate sensor readings for the current batch
     
-    # Calculate time to the next minute boundary
+    # Calculate time to the next 5-minute boundary
     now = datetime.datetime.now(datetime.timezone.utc)
-    seconds_to_next_minute = 60 - now.second
-    if seconds_to_next_minute == 60:  # If we're exactly at a minute boundary
-        seconds_to_next_minute = 0
+    # Calculate seconds to next 5-minute boundary
+    minutes_to_add = 5 - (now.minute % 5)
+    if minutes_to_add == 5 and now.second == 0:  # If we're exactly at a 5-minute boundary
+        seconds_to_next_5min = 0
+    else:
+        seconds_to_next_5min = (minutes_to_add * 60) - now.second
     
-    # Adjust batch duration to align with minute boundary for the first batch
-    first_batch_duration = seconds_to_next_minute if seconds_to_next_minute > 0 else BATCH_DURATION
+    # Adjust batch duration to align with 5-minute boundary for the first batch
+    first_batch_duration = seconds_to_next_5min if seconds_to_next_5min > 0 else BATCH_DURATION
     
-    print(f"First batch will run for {first_batch_duration} seconds to align with minute boundary")
+    print(f"First batch will run for {first_batch_duration} seconds to align with 5-minute boundary")
     batch_start = time.time()
     next_batch_end = batch_start + first_batch_duration
 
@@ -176,8 +179,9 @@ def main():
             if current_time >= next_batch_end:
                 # Get the batch end time for the filename (this is when the data collection period ended)
                 batch_end_dt = datetime.datetime.fromtimestamp(next_batch_end, datetime.timezone.utc)
-                # Round to the nearest minute for the timestamp
-                rounded_dt = batch_end_dt.replace(second=0, microsecond=0)
+                # Round to the nearest 5-minute boundary for the timestamp
+                rounded_minute = 5 * (batch_end_dt.minute // 5)
+                rounded_dt = batch_end_dt.replace(minute=rounded_minute, second=0, microsecond=0)
                 timestamp = rounded_dt.strftime('%Y%m%dT%H%M%SZ')
                 
                 # Convert the list of dicts to a Pandas DataFrame
@@ -217,13 +221,17 @@ def main():
                 # Reset the batch data for the next cycle
                 batch_data = []
                 
-                # Set the next batch end time to align with minute boundaries
+                # Set the next batch end time to align with 5-minute boundaries
                 next_batch_end = next_batch_end + BATCH_DURATION
-                # Ensure we're aligned to minute boundaries
+                # Ensure we're aligned to 5-minute boundaries
                 current_dt = datetime.datetime.fromtimestamp(next_batch_end, datetime.timezone.utc)
-                if current_dt.second != 0:
-                    # Adjust to the next minute boundary
-                    seconds_to_add = 60 - current_dt.second
+                # Calculate seconds to the next 5-minute boundary
+                minutes_to_add = 5 - (current_dt.minute % 5)
+                if minutes_to_add == 5 and current_dt.second == 0:  # If we're exactly at a 5-minute boundary
+                    pass  # No adjustment needed
+                else:
+                    # Adjust to the next 5-minute boundary
+                    seconds_to_add = (minutes_to_add * 60) - current_dt.second
                     next_batch_end += seconds_to_add
             
             # Sleep until next reading or end of batch, whichever comes first
