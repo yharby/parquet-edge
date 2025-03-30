@@ -99,7 +99,7 @@ def main():
             date_trunc('minute', timestamp)
           ORDER BY 
             timestamp
-        ) TO '{dest_path}' (FORMAT 'parquet', COMPRESSION 'zstd', ROW_GROUP_SIZE 65536, OVERWRITE 1);
+        ) TO '{dest_path}' (FORMAT 'parquet', COMPRESSION 'zstd', ROW_GROUP_SIZE 65536, OVERWRITE_OR_IGNORE);
         """)
         
         # Count rows in the destination file to verify successful upload
