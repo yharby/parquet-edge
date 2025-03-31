@@ -2,8 +2,8 @@ name: Python Daily Aggregation
 
 on:
   schedule:
-    # Run daily at 22:11 UTC (adjust if needed)
-    - cron: '11 22 * * *'
+    # Runs at 00:20 UTC daily
+    - cron: '20 0 * * *'
   push:
     branches: [ main ]
   workflow_dispatch:
