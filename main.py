@@ -140,15 +140,16 @@ def read_sensors():
             data['pm1'] = float(pm_readings.pm_ug_per_m3(1.0))
             data['pm2_5'] = float(pm_readings.pm_ug_per_m3(2.5))
             data['pm10'] = float(pm_readings.pm_ug_per_m3(10.0))
-            # Particle counts
-            data['particles_03um'] = pm_readings.particles_03um
-            data['particles_05um'] = pm_readings.particles_05um
-            data['particles_10um'] = pm_readings.particles_10um
-            data['particles_25um'] = pm_readings.particles_25um
-            data['particles_50um'] = pm_readings.particles_50um
-            data['particles_100um'] = pm_readings.particles_100um
-        except ReadTimeoutError:
-            # Set all PM-related fields to None in case of timeout
+            # Particle counts - using the correct attribute names
+            data['particles_03um'] = float(pm_readings.pm_per_1l_air(0.3))
+            data['particles_05um'] = float(pm_readings.pm_per_1l_air(0.5))
+            data['particles_10um'] = float(pm_readings.pm_per_1l_air(1.0))
+            data['particles_25um'] = float(pm_readings.pm_per_1l_air(2.5))
+            data['particles_50um'] = float(pm_readings.pm_per_1l_air(5.0))
+            data['particles_100um'] = float(pm_readings.pm_per_1l_air(10.0))
+        except (ReadTimeoutError, ValueError) as e:
+            print(f"Warning: PMS5003 read error: {e}")
+            # Set all PM-related fields to None in case of timeout or value error
             for field in ['pm1', 'pm2_5', 'pm10',
                          'particles_03um', 'particles_05um', 'particles_10um',
                          'particles_25um', 'particles_50um', 'particles_100um']:
