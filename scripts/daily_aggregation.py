@@ -92,7 +92,16 @@ def main():
             AVG(reducing) AS reducing,
             AVG(nh3) AS nh3,
             AVG(lux) AS lux,
-            AVG(proximity) AS proximity
+            AVG(proximity) AS proximity,
+            AVG(pm1) AS pm1,
+            AVG(pm2_5) AS pm2_5,
+            AVG(pm10) AS pm10,
+            AVG(particles_03um) AS particles_03um,
+            AVG(particles_05um) AS particles_05um,
+            AVG(particles_10um) AS particles_10um,
+            AVG(particles_25um) AS particles_25um,
+            AVG(particles_50um) AS particles_50um,
+            AVG(particles_100um) AS particles_100um
           FROM 
             read_parquet('{input_path}', hive_partitioning=1, union_by_name=true)
           GROUP BY 
