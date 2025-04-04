@@ -29,7 +29,7 @@ SENSOR_CONFIG = {
     'bme280': True,   # temperature, pressure, humidity
     'gas': True,      # oxidised, reducing, nh3
     'ltr559': True,   # lux, proximity
-    'pms5003': False  # pm1, pm2.5, pm10 (set to True if sensor is connected)
+    'pms5003': True   # pm1, pm2.5, pm10 (set to True if sensor is connected)
 }
 
 READ_INTERVAL = 1        # seconds between sensor reads
@@ -136,13 +136,28 @@ def read_sensors():
     if SENSOR_CONFIG.get('pms5003') and pms5003:
         try:
             pm_readings = pms5003.read()
+            # Standard PM measurements
             data['pm1'] = pm_readings.pm_ug_per_m3(1.0)
             data['pm2_5'] = pm_readings.pm_ug_per_m3(2.5)
             data['pm10'] = pm_readings.pm_ug_per_m3(10)
+            # Atmospheric environment PM measurements
+            data['pm1_atm'] = pm_readings.pm_ug_per_m3(1.0, atmospheric_environment=True)
+            data['pm2_5_atm'] = pm_readings.pm_ug_per_m3(2.5, atmospheric_environment=True)
+            data['pm10_atm'] = pm_readings.pm_ug_per_m3(10, atmospheric_environment=True)
+            # Particle counts per 0.1L of air
+            data['particles_03um'] = pm_readings.pm_per_1l_air(0.3)
+            data['particles_05um'] = pm_readings.pm_per_1l_air(0.5)
+            data['particles_10um'] = pm_readings.pm_per_1l_air(1.0)
+            data['particles_25um'] = pm_readings.pm_per_1l_air(2.5)
+            data['particles_50um'] = pm_readings.pm_per_1l_air(5.0)
+            data['particles_100um'] = pm_readings.pm_per_1l_air(10)
         except ReadTimeoutError:
-            data['pm1'] = None
-            data['pm2_5'] = None
-            data['pm10'] = None
+            # Set all PM-related fields to None in case of timeout
+            for field in ['pm1', 'pm2_5', 'pm10', 
+                         'pm1_atm', 'pm2_5_atm', 'pm10_atm',
+                         'particles_03um', 'particles_05um', 'particles_10um',
+                         'particles_25um', 'particles_50um', 'particles_100um']:
+                data[field] = None
 
     return data
 
