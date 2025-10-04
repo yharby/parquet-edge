@@ -13,7 +13,7 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 echo "[$TIMESTAMP] Starting sync operation" >> $LOG_FILE
 
 # Run the sync command
-aws s3 sync /root/parqtime/parquet-edge/output s3://youssef-harby/weather-station-realtime-parquet/parquet/ --endpoint-url=https://data.source.coop >> $LOG_FILE 2>&1
+aws s3 sync /root/parqtime/parquet-edge/output s3://us-west-2.opendata.source.coop/youssef-harby/weather-station-realtime-parquet/parquet/ >> $LOG_FILE 2>&1
 
 # Get the exit code
 EXIT_CODE=$?

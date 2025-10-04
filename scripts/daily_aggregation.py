@@ -36,9 +36,9 @@ def main():
     print(f"Aggregating data for: {year}-{month}-{day}")
     
     # Construct S3 paths
-    input_path = f"s3://youssef-harby/weather-station-realtime-parquet/parquet/station=01/year={year}/month={month}/day={day}/*.parquet"
+    input_path = f"s3://us-west-2.opendata.source.coop/youssef-harby/weather-station-realtime-parquet/parquet/station=01/year={year}/month={month}/day={day}/*.parquet"
     output_file = f"{year}_{month}_{day}.parquet"
-    dest_path = f"s3://youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/year={year}/month={month}/{output_file}"
+    dest_path = f"s3://us-west-2.opendata.source.coop/youssef-harby/weather-station-realtime-parquet/1m_avg_daily/station=01/year={year}/month={month}/{output_file}"
     
     print(f"Input path: {input_path}")
     print(f"Output path: {dest_path}")
@@ -62,9 +62,7 @@ def main():
         CREATE OR REPLACE SECRET s3_secret (
             TYPE S3,
             PROVIDER credential_chain,
-            CHAIN 'env',
-            ENDPOINT 'data.source.coop',
-            URL_STYLE 'path'
+            CHAIN 'env'
         );
         """)
         
